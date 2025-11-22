@@ -42,10 +42,8 @@ RUN set -eux; \
         n=$((n+1)); sleep 5; \
     done
 
-# Install CPU-only torch explicitly
-RUN pip install --no-cache-dir "torch==2.9.1+cpu" -f https://download.pytorch.org/whl/cpu/torch_stable.html
-
+# copy app
 COPY . /app
 
 EXPOSE 8000
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["poetry","uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
