@@ -1,7 +1,9 @@
 captchas
 venv
 hub
-
+env
+.idea
+__pycache__/*
 # Deployment guides (local reference only)
 DEPLOYMENT.md
 QUICK_DEPLOY.md
