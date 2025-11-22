@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>VTU Scraper — Home</title>
+    <style>
+      :root{
+        --bg:#f6f7fb;
+        --card:#ffffff;
+        --muted:#6b7280;
+        --accent:#0b63d6;
+        --radius:10px;
+        --glass: rgba(18,24,40,0.04);
+      }
+
+      *, *::before, *::after { box-sizing: border-box; }
+      html, body { height: 100%; }
+
+      body {
+        font-family: Inter, "Segoe UI", Arial, sans-serif;
+        background: var(--bg);
+        color: #111;
+        margin: 0;
+        padding: 28px;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      .wrap {
+        max-width: 980px;
+        margin: 0 auto;
+        padding: 0 18px;
+      }
+
+      .card {
+        background: var(--card);
+        border: 1px solid #e6e9ef;
+        border-radius: var(--radius);
+        padding: 22px;
+        box-shadow: 0 6px 18px var(--glass);
+      }
+
+      h1 { margin: 0 0 6px; font-size: 22px; }
+      p.lead { margin: 6px 0 18px; color: var(--muted); line-height: 1.45; }
+
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 320px;
+        gap: 18px;
+        align-items: start;
+        align-content: start;
+      }
+
+      .right { display: flex; flex-direction: column; gap: 12px; }
+
+      .box {
+        padding: 12px;
+        border-radius: 8px;
+        background: #fbfdff;
+        border: 1px solid #eef3ff;
+      }
+
+      pre {
+        background: #0f1724;
+        color: #e6eef8;
+        padding: 12px;
+        border-radius: 6px;
+        overflow: auto;
+        margin: 0;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+
+      code { background: gray; padding: 2px 6px; border-radius: 4px; font-size: 13px; }
+
+      a { color: var(--accent); text-decoration: none; }
+      ul { margin: 8px 0 0 18px; padding: 0; }
+      .note { font-size: 13px; color: var(--muted); margin-top: 10px; }
+
+      .right h3 { margin-top: 0; }
+      .important { color: #b91c1c; font-weight: 600; }
+      footer { margin-top: 18px; font-size: 13px; color: var(--muted); }
+
+      @media (max-width: 840px) {
+        .grid { grid-template-columns: 1fr; }
+        .right { order: 2; }
+      }
+
+      @media (max-width: 420px) {
+        body { padding: 16px; }
+        .wrap { padding: 0 12px; }
+        .card { padding: 16px; }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="wrap">
+      <header class="card" role="banner" aria-label="VTU Scraper header">
+        <h1>VTUHub — VTU Scraper</h1>
+        <p class="lead">This service fetches full VTU result pages and returns the complete HTML. Use the interactive API docs to call endpoints and view examples.</p>
+      </header>
+
+      <main class="card" role="main" aria-label="Overview" style="margin-top:18px">
+        <div class="grid">
+          <section>
+            <div class="box" aria-labelledby="returns-title">
+              <h3 id="returns-title">What this service returns</h3>
+              <ul>
+                <li><strong>Full HTML</strong> for the VTU result page.</li>
+                <li>Automatic retry on invalid captcha (up to 5 attempts).</li>
+                <li>Two main endpoints: <code>/single-post</code> and <code>/range-post</code>.</li>
+              </ul>
+              <p class="note">If you want parsed JSON rather than raw HTML, add a post-processing step or request a parser endpoint.</p>
+            </div>
+
+            <div style="height:18px"></div>
+
+            <div class="box" aria-labelledby="examples-title">
+              <h3 id="examples-title">Quick examples</h3>
+
+              <!-- COLORED NOTE — CHANGE APPLIED HERE -->
+              <p class="note" style="color:#0b63d6;">
+                <strong>Single USN</strong> — returns full result HTML for one USN.
+              </p>
+
+              <pre><code>curl -X POST "http://127.0.0.1:8000/single-post" \
+  -H "Content-Type: application/json" \
+  -d '{"index_url":"https://results.vtu.ac.in/JJEcbcs25/index.php","usn":"4MH"}'</code></pre>
+
+              <p class="note" style="margin-top:10px"><strong>Range</strong> — returns a map of USN → HTML for a range.</p>
+              <pre><code>curl -X POST "http://127.0.0.1:8000/range-post" \
+  -H "Content-Type: application/json" \
+  -d '{"index_url":"https://results.vtu.ac.in/JJEcbcs25/index.php","start_usn":"4MH","end_usn":"4MH"}'</code></pre>
+            </div>
+          </section>
+
+          <aside class="right" role="complementary" aria-label="Docs and status">
+            <div class="box" aria-labelledby="docs-title">
+              <h3 id="docs-title">Open API docs (Swagger)</h3>
+              <p class="note">View all endpoints and try them live:</p>
+              <p><a href="/docs">Swagger UI — /docs</a></p>
+              <p class="note">Redoc: <a href="/redoc">/redoc</a></p>
+            </div>
+
+            <div class="box" aria-labelledby="status-title">
+              <h3 id="status-title">Status & troubleshooting</h3>
+              <ul>
+                <li>Server: <code>http://127.0.0.1:8000</code></li>
+                <li class="important">If invalid captcha repeats, improve OCR or input captcha manually.</li>
+                <li>Ensure <code>VTUScraper</code> is imported correctly and server is run from project root.</li>
+              </ul>
+            </div>
+          </aside>
+        </div>
+
+        <p class="note" style="margin-top:18px">Endpoints return HTML. Use Swagger to inspect full output.</p>
+      </main>
+
+      <footer class="card" role="contentinfo" style="margin-top:18px">
+        <p>© VTUHub — VTU Scraper. Internal use only.</p>
+      </footer>
+    </div>
+  </body>
+</html>

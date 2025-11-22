@@ -1,0 +1,33 @@
+# Dockerfile.gpu
+FROM nvidia/cuda:12.1.1-cudnn8-devel-ubuntu22.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV PYTHONUNBUFFERED=1
+WORKDIR /app
+
+# System deps
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3-pip python3-dev build-essential git curl \
+    libglib2.0-0 libsm6 libxrender1 libxext6 libjpeg-dev libpng-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Use pip for python3
+RUN python3 -m pip install --upgrade pip setuptools wheel
+
+COPY requirements-prod.txt /app/requirements-prod.txt
+
+# Install most requirements first (no torch) then install torch with CUDA wheel
+RUN pip install --no-cache-dir -r /app/requirements-prod.txt
+
+# Install CUDA-compatible PyTorch (example: CUDA 12.1 wheel)
+# Adjust torch version/wheel if you need a different CUDA version.
+RUN pip install --no-cache-dir --index-url https://download.pytorch.org/whl/cu121 \
+    "torch==2.9.1+cu121" \
+    torchvision==0.24.1+cu121 torchaudio==2.9.1+cu121
+
+# copy app
+COPY . /app
+
+EXPOSE 8000
+
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
