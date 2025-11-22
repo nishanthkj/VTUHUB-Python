@@ -137,7 +137,7 @@ python-dotenv = "1.2.1"
 python-json-logger = "4.0.0"
 python-multipart = "0.0.20"
 pytz = "2025.2"
-pywinpty = "3.0.2"
+pywinpty = { version = "3.0.2", markers = "sys_platform == 'win32'" }
 pyyaml = "6.0.2"
 pyzmq = "27.1.0"
 referencing = "0.37.0"
