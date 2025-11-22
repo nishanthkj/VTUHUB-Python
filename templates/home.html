@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>VTU Scraper — Home</title>
+    <style>
+      :root{
+        --bg:#f6f7fb;
+        --card:#ffffff;
+        --muted:#6b7280;
+        --accent:#0b63d6;
+        --radius:10px;
+        --glass: rgba(18,24,40,0.04);
+      }
+
+      *, *::before, *::after { box-sizing: border-box; }
+      html, body { height: 100%; }
+
+      body {
+        font-family: Inter, "Segoe UI", Arial, sans-serif;
+        background: var(--bg);
+        color: #111;
+        margin: 0;
+        padding: 28px;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      .wrap {
+        max-width: 980px;
+        margin: 0 auto;
+        padding: 0 18px;
+      }
+
+      .card {
+        background: var(--card);
+        border: 1px solid #e6e9ef;
+        border-radius: var(--radius);
+        padding: 22px;
+        box-shadow: 0 6px 18px var(--glass);
+      }
+
+      h1 { margin: 0 0 6px; font-size: 22px; }
+      p.lead { margin: 6px 0 18px; color: var(--muted); line-height: 1.45; }
+
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 320px;
+        gap: 18px;
+        align-items: start;
+        align-content: start;
+      }
+
+      .right { display: flex; flex-direction: column; gap: 12px; }
+
+      .box {
+        padding: 12px;
+        border-radius: 8px;
+        background: #fbfdff;
+        border: 1px solid #eef3ff;
+      }
+
+      pre {
+        background: #0f1724;
+        color: #e6eef8;
+        padding: 12px;
+        border-radius: 6px;
+        overflow: auto;
+        margin: 0;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+
+      code { background: gray; padding: 2px 6px; border-radius: 4px; font-size: 13px; }
+
+      a { color: var(--accent); text-decoration: none; }
+      ul { margin: 8px 0 0 18px; padding: 0; }
+      .note { font-size: 13px; color: var(--muted); margin-top: 10px; }
+
+      .right h3 { margin-top: 0; }
+      .important { color: #b91c1c; font-weight: 600; }
+      footer { margin-top: 18px; font-size: 13px; color: var(--muted); }
+
+      form { display: grid; gap: 8px; }
+      label { font-size: 13px; color: var(--muted); }
+      input[type=text], input[type=url], textarea, select {
+        width: 100%; padding: 8px 10px; border-radius: 6px; border: 1px solid #e6e9ef; font-size: 14px;
+        background: #fff;
+      }
+
+      .row { display:flex; gap:8px; }
+      button {
+        background: var(--accent); color: white; border: 0; padding: 8px 12px; border-radius: 8px; cursor: pointer;
+      }
+      button.secondary { background: #6b7280; }
+
+      .result-wrap { margin-top: 12px; }
+      .result-meta { font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+
+      .controls { display:flex; gap:8px; align-items:center; }
+
+      @media (max-width: 840px) {
+        .grid { grid-template-columns: 1fr; }
+        .right { order: 2; }
+      }
+
+      @media (max-width: 420px) {
+        body { padding: 16px; }
+        .wrap { padding: 0 12px; }
+        .card { padding: 16px; }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="wrap">
+      <header class="card" role="banner" aria-label="VTU Scraper header">
+        <h1>VTUHub — VTU Scraper</h1>
+        <p class="lead">Call the two endpoints directly from this page: <code>/single-post</code> and <code>/range-post</code>. Results show a preview and can be downloaded.</p>
+      </header>
+
+      <main class="card" role="main" aria-label="Overview" style="margin-top:18px">
+        <div class="grid">
+          <section>
+            <div class="box" aria-labelledby="single-title">
+              <h3 id="single-title">Single USN</h3>
+              <form id="single-form">
+                <label for="single-index">Index URL</label>
+                <input id="single-index" name="index_url" type="url" placeholder="https://results.vtu.ac.in/JJEcbcs25/index.php" required />
+
+                <label for="single-usn">USN</label>
+                <input id="single-usn" name="usn" type="text" placeholder="" required />
+
+                <div class="row">
+                  <button type="submit">Fetch</button>
+                  <button type="button" id="single-clear" class="secondary">Clear</button>
+                </div>
+
+                <div class="result-wrap" id="single-result-wrap" hidden>
+                  <div class="result-meta" id="single-meta"></div>
+                  <div style="margin-bottom:8px">
+                    <button type="button" id="single-open">Open in new tab</button>
+                    <button type="button" id="single-download" class="secondary">Download HTML</button>
+                  </div>
+                  <pre id="single-result" style="max-height:360px"></pre>
+                </div>
+              </form>
+            </div>
+
+            <div style="height:18px"></div>
+
+            <div class="box" aria-labelledby="range-title">
+              <h3 id="range-title">Range (start → end)</h3>
+              <form id="range-form">
+                <label for="range-index">Index URL</label>
+                <input id="range-index" name="index_url" type="url" placeholder="https://results.vtu.ac.in/JJEcbcs25/index.php" required />
+
+                <div class="row">
+                  <div style="flex:1">
+                    <label for="start-usn">Start USN (prefix or full)</label>
+                    <input id="start-usn" name="start_usn" type="text" placeholder="" required />
+                  </div>
+                  <div style="width:160px">
+                    <label for="end-usn">End USN</label>
+                    <input id="end-usn" name="end_usn" type="text" placeholder="" required />
+                  </div>
+                </div>
+
+                <div class="row" style="margin-top:6px">
+                  <button type="submit">Fetch Range</button>
+                  <button type="button" id="range-clear" class="secondary">Clear</button>
+                </div>
+
+                <div class="result-wrap" id="range-result-wrap" hidden>
+                  <div class="result-meta" id="range-meta"></div>
+                  <div style="margin-bottom:8px">
+                    <button type="button" id="range-download" class="secondary">Download JSON</button>
+                  </div>
+                  <pre id="range-result" style="max-height:360px"></pre>
+                </div>
+              </form>
+            </div>
+
+          </section>
+
+          <aside class="right" role="complementary" aria-label="Docs and status">
+            <div class="box" aria-labelledby="docs-title">
+              <h3 id="docs-title">Open API docs (Swagger)</h3>
+              <p class="note">View all endpoints and try them live:</p>
+              <p><a href="/docs">Swagger UI — /docs</a></p>
+              <p class="note">Redoc: <a href="/redoc">/redoc</a></p>
+            </div>
+
+            <div class="box" aria-labelledby="status-title">
+              <h3 id="status-title">Status & troubleshooting</h3>
+              <ul>
+                <li>Server: <code>http://127.0.0.1:8000</code></li>
+                <li class="important">If invalid captcha repeats, improve OCR or input captcha manually.</li>
+                <li>Ensure <code>VTUScraper</code> is imported correctly and server is run from project root.</li>
+              </ul>
+            </div>
+          </aside>
+        </div>
+
+        <p class="note" style="margin-top:18px">Endpoints return HTML. Use Swagger to inspect full output.</p>
+      </main>
+
+      <footer class="card" role="contentinfo" style="margin-top:18px">
+        <p>© VTUHub — VTU Scraper. Internal use only.</p>
+      </footer>
+    </div>
+
+    <script>
+      function safeText(html) {
+        // keep as text for preview to avoid execution
+        return html;
+      }
+
+      async function postJson(url, body) {
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+        if (!res.ok) {
+          const txt = await res.text().catch(()=>null);
+          throw new Error(`HTTP ${res.status}: ${txt || res.statusText}`);
+        }
+        const ct = res.headers.get('content-type') || '';
+        if (ct.includes('application/json')) return res.json();
+        return res.text();
+      }
+
+      // Single form
+      const singleForm = document.getElementById('single-form');
+      const singleResultWrap = document.getElementById('single-result-wrap');
+      const singleResult = document.getElementById('single-result');
+      const singleMeta = document.getElementById('single-meta');
+      const singleOpen = document.getElementById('single-open');
+      const singleDownload = document.getElementById('single-download');
+
+      singleForm.addEventListener('submit', async (e)=>{
+        e.preventDefault();
+        const index = document.getElementById('single-index').value.trim();
+        const usn = document.getElementById('single-usn').value.trim();
+        singleResultWrap.hidden = true;
+        singleMeta.textContent = 'Fetching...';
+        singleResult.textContent = '';
+        try {
+          const data = await postJson('/single-post', { index_url: index, usn });
+          const html = typeof data === 'string' ? data : (data.html || JSON.stringify(data, null, 2));
+          singleResult.textContent = html;
+          singleMeta.textContent = `Fetched ${html.length} bytes`;
+          singleResultWrap.hidden = false;
+
+          singleOpen.onclick = ()=>{
+            const blob = new Blob([html], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            window.open(url, '_blank');
+            setTimeout(()=>URL.revokeObjectURL(url), 60000);
+          };
+
+          singleDownload.onclick = ()=>{
+            const blob = new Blob([html], { type: 'text/html' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `${usn || 'result'}.html`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            setTimeout(()=>URL.revokeObjectURL(a.href), 60000);
+          };
+
+        } catch (err) {
+          singleMeta.textContent = 'Error: ' + err.message;
+          singleResult.textContent = '';
+          singleResultWrap.hidden = false;
+        }
+      });
+
+      document.getElementById('single-clear').addEventListener('click', ()=>{
+        document.getElementById('single-index').value = '';
+        document.getElementById('single-usn').value = '';
+        singleResultWrap.hidden = true;
+      });
+
+      // Range form
+      const rangeForm = document.getElementById('range-form');
+      const rangeResultWrap = document.getElementById('range-result-wrap');
+      const rangeResult = document.getElementById('range-result');
+      const rangeMeta = document.getElementById('range-meta');
+      const rangeDownload = document.getElementById('range-download');
+
+      rangeForm.addEventListener('submit', async (e)=>{
+        e.preventDefault();
+        const index = document.getElementById('range-index').value.trim();
+        const start = document.getElementById('start-usn').value.trim();
+        const end = document.getElementById('end-usn').value.trim();
+        rangeResultWrap.hidden = true;
+        rangeMeta.textContent = 'Fetching...';
+        rangeResult.textContent = '';
+        try {
+          const data = await postJson('/range-post', { index_url: index, start_usn: start, end_usn: end });
+          const text = typeof data === 'string' ? data : JSON.stringify(data, null, 2);
+          rangeResult.textContent = text;
+          rangeMeta.textContent = `Fetched ${text.length} bytes`;
+          rangeResultWrap.hidden = false;
+
+          rangeDownload.onclick = ()=>{
+            const blob = new Blob([text], { type: 'application/json' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `range_${start || 'start'}_${end || 'end'}.json`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            setTimeout(()=>URL.revokeObjectURL(a.href), 60000);
+          };
+        } catch (err) {
+          rangeMeta.textContent = 'Error: ' + err.message;
+          rangeResult.textContent = '';
+          rangeResultWrap.hidden = false;
+        }
+      });
+
+      document.getElementById('range-clear').addEventListener('click', ()=>{
+        document.getElementById('range-index').value = '';
+        document.getElementById('start-usn').value = '';
+        document.getElementById('end-usn').value = '';
+        rangeResultWrap.hidden = true;
+      });
+    </script>
+  </body>
+</html>
