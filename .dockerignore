@@ -30,6 +30,11 @@ xet/
 *.log
 *.md
 !readme.md
+templates/
+services/EasyOCR.py
+services/PaddleOCR.py
+services/ocr_exact.py
+services/trocr_mp.py
 
 # Git
 .git/
