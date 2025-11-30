@@ -1,5 +1,5 @@
 # Dockerfile.cpu
-FROM python:3.12-slim as builder
+FROM python:3.12-slim AS builder
 
 ENV PYTHONUNBUFFERED=1
 WORKDIR /app
@@ -44,6 +44,5 @@ RUN find /usr/local/lib/python3.12/site-packages -type d -name __pycache__ -exec
 COPY . /app
 
 
-# ------------------- CLOUD RUN START COMMAND -------------------
-# Must bind to 0.0.0.0 and must use $PORT
-CMD ["sh", "-c", "uvicorn main:app --host 0.0.0.0 --port $PORT"]
+# run uvicorn
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]
